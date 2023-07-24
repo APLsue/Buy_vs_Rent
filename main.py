@@ -95,6 +95,8 @@ rent_sums = rent_cf.iloc[:,2:].sum()
 buy_sums.name = 'Buy'
 rent_sums.name = 'Rent'
 
+rent_sums.drop(labels='Deposit', inplace=True)
+
 col1, col2 = st.columns(2)
 col1.title('Buy')
 col1.dataframe(buy_sums)
