@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd 
 import numpy as np
 
-st.title('Buy vs Rent Analysis')
+st.title('Buy vs Rent Analysis - Cash flow approach')
 
 col1, col2 = st.columns(2)
 
