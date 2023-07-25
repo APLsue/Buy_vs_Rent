@@ -2,27 +2,34 @@ import streamlit as st
 import pandas as pd 
 import numpy as np
 
-st.title('Buy vs Rent Analysis - Cash flow approach')
+st.title('Buy vs Rent')
+
+st.divider()
+
+st.title('Main Inputs')
+col1, col2 = st.columns(2)
+#mutual assumptions
+property_value = col1.number_input('Home Value', min_value=100000, max_value=1000000, value=250000,step=1000)
+stay_years = col2.number_input('Stay in Years', min_value=5, max_value=30, value=10,step=1)
 
 col1, col2 = st.columns(2)
 
-#mutual assumptions
-property_value = col2.number_input('Home Value', min_value=100000, max_value=1000000, value=250000)
-stay_years = col2.number_input('Stay in Years', min_value=5, max_value=30, value=10)
+col1.title('Buy Inputs')
+col2.title('Rent Inputs')
 
 #buying assumptions
-down_payment_percentage = col1.number_input('Down Payment %', min_value=5.00, max_value=20.00, value=10.00)
-mortgage_rate = col1.number_input('Mortgage Rate %', min_value=-1.00, max_value=20.00, value=6.00)
-mortgage_years = col1.number_input('Mortgage Years', min_value=5, max_value=30, value=20)
-property_value_increase = col1.number_input('Porperty Price Increase per year %', min_value=0.00, max_value=50.00, value=6.00)
-legal_fees = col1.number_input('Legal Fees', min_value=0.00, max_value=5.00,value=1.00)
-maintenance_rate = col1.number_input('Maintenance Annual Rate',min_value=0.00,max_value=10.00,value=1.00)
+down_payment_percentage = col1.number_input('Down Payment %', min_value=5.00, max_value=20.00, value=10.00,step=1.0)
+mortgage_rate = col1.number_input('Mortgage Rate %', min_value=-1.00, max_value=20.00, value=6.00,step=1.0)
+mortgage_years = col1.number_input('Mortgage Years', min_value=5, max_value=30, value=20,step=1)
+property_value_increase = col1.number_input('Porperty Price Increase per year %', min_value=0.00, max_value=50.00, value=6.00,step=1.0)
+legal_fees = col1.number_input('Legal Fees %', min_value=0.00, max_value=5.00,value=1.00,step=0.5)
+maintenance_rate = col1.number_input('Maintenance Annual Rate %',min_value=0.00,max_value=10.00,value=1.00,step=1.0)
 
 #rent assumptions
-rental_yield = col2.number_input('Rental Yield %',min_value=0.00,max_value=20.00,value=5.00)
-investment_interest_rate = col2.number_input('Return on Investment %',min_value=0.00,max_value=50.00, value=8.00)
-rental_increase = col2.number_input('Rental Increase per year %',min_value=0.00,max_value=50.00, value=2.00)
-rent_deposit = col2.number_input('Rent deposit (Months)', min_value=0, max_value=12, value=2)
+rental_yield = col2.number_input('Rental Yield %',min_value=0.00,max_value=20.00,value=5.00,step=1.0)
+investment_interest_rate = col2.number_input('Return on Investment %',min_value=0.00,max_value=50.00, value=8.00,step=1.0)
+rental_increase = col2.number_input('Rental Increase per Year %',min_value=0.00,max_value=50.00, value=2.00,step=1.0)
+rent_deposit = col2.number_input('Rent deposit (Months)', min_value=0, max_value=12, value=2,step=1)
 
 #buying calculations
 down_payment = property_value * down_payment_percentage/100
@@ -97,17 +104,18 @@ rent_sums.name = 'Rent'
 
 rent_sums.drop(labels='Deposit', inplace=True)
 
-col1, col2 = st.columns(2)
-col1.title('Buy')
+st.divider()
+
+col1,col2 = st.columns(2)
+
 col1.dataframe(buy_sums)
-col2.title('Rent')
 col2.dataframe(rent_sums)
 
 with st.expander('Cash Flow'):
     st.title('Buy')
-    st.dataframe(buy_cf)
+    st.dataframe(buy_cf,use_container_width=True)
     st.title('Rent')
-    st.dataframe(rent_cf)
+    st.dataframe(rent_cf,use_container_width=True)
 
 st.write(f"""
 **Analysis:**
