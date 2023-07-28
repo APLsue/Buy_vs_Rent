@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd 
 import numpy as np
+import streamlit as st
+import smtplib
+from email.message import EmailMessage
 
 st.title('Buy vs Rent')
 
@@ -123,3 +126,32 @@ Based on the inputs provided, the total value of the buying option at
 the end of {stay_years} years was {int(buy_cf['Total'].sum()):,}. 
 Compared to the total rent value of {int(rent_cf['Total'].sum()):,}.
 """)
+
+st.divider()
+
+st.header("Feedback")
+
+mail = st.secrets['MAIL']
+mail_pass = st.secrets['MAIL_PASS']
+
+with st.form("feedback_form"):
+    user_feedback = st.text_area("Please share your feedback")
+    submitted = st.form_submit_button("Submit")
+    if submitted:
+        # Construct an email message
+        msg = EmailMessage()
+        msg['Subject'] = "Streamlit App Feedback" 
+        msg['From'] = mail
+        msg['To'] = mail
+        
+        # Add feedback as message body
+        msg.set_content(user_feedback)
+        
+        # Send the message
+        with smtplib.SMTP("smtp.gmail.com", port=587) as smtp:
+            smtp.ehlo()
+            smtp.starttls()
+            smtp.login(mail, mail_pass)
+            smtp.send_message(msg)
+            
+        st.success("Feedback submitted!")
