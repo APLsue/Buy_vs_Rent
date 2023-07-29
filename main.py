@@ -5,34 +5,48 @@ import streamlit as st
 import smtplib
 from email.message import EmailMessage
 
-st.title('Buy vs Rent')
+st.set_page_config(page_title="Buy vs Rent",
+                   page_icon="🏠")
 
-st.divider()
+st.title('Buy vs Rent 🏠')
 
-st.title('Main Inputs')
-col1, col2 = st.columns(2)
+#st.write("""
+# This app helps you analyse the difference between buying and renting a property. 
+# It is done in a pure financial approach, it does not consider any personal prefferences.
+# Assumptions:
+# 1. You have the option of either buy or rent the same or similar property
+# 2. Have enough money to pay the initial deposit
+# 3. Can access a mortgage
+# 4. Can invest your disposable income
+# 5. Monthly cash outflows are the same 
+# 5. All invetment interest is reinvested
+# The difference from other buy vs rent comparisons is that here, both options use the same amount of money per month. This is because it is..."""")
+
+st.subheader('1. Mutual Inputs ⚖️')
+st.write('Here you can change the main assumptions')
+
 #mutual assumptions
-property_value = col1.number_input('Home Value', min_value=100000, max_value=1000000, value=250000,step=1000)
-stay_years = col2.number_input('Stay in Years', min_value=5, max_value=30, value=10,step=1)
+with st.expander('Main Inputs'):
+    property_value = st.number_input('Home Value', min_value=100000, max_value=1000000, value=250000,step=1000)
+    stay_years = st.number_input('Stay in Years', min_value=5, max_value=30, value=10,step=1)
 
-col1, col2 = st.columns(2)
-
-col1.title('Buy Inputs')
-col2.title('Rent Inputs')
+st.subheader('2. Specific Inputs 💰')
 
 #buying assumptions
-down_payment_percentage = col1.number_input('Down Payment %', min_value=5.00, max_value=20.00, value=10.00,step=1.0)
-mortgage_rate = col1.number_input('Mortgage Rate %', min_value=-1.00, max_value=20.00, value=6.00,step=1.0)
-mortgage_years = col1.number_input('Mortgage Years', min_value=5, max_value=30, value=20,step=1)
-property_value_increase = col1.number_input('Porperty Price Increase per year %', min_value=0.00, max_value=50.00, value=6.00,step=1.0)
-legal_fees = col1.number_input('Legal Fees %', min_value=0.00, max_value=5.00,value=1.00,step=0.5)
-maintenance_rate = col1.number_input('Maintenance Annual Rate %',min_value=0.00,max_value=10.00,value=1.00,step=1.0)
+with st.expander('Buy Inputs'):
+    down_payment_percentage = st.number_input('Down Payment %', min_value=5.00, max_value=100.00, value=10.00,step=1.0)
+    mortgage_rate = st.number_input('Mortgage Rate %', min_value=-1.00, max_value=20.00, value=6.00,step=1.0)
+    mortgage_years = st.number_input('Mortgage Years', min_value=5, max_value=30, value=20,step=1)
+    property_value_increase = st.number_input('Porperty Price Increase per year %', min_value=0.00, max_value=50.00, value=6.00,step=1.0)
+    legal_fees = st.number_input('Legal Fees %', min_value=0.00, max_value=5.00,value=1.00,step=0.5)
+    maintenance_rate = st.number_input('Maintenance Annual Rate %',min_value=0.00,max_value=10.00,value=1.00,step=1.0)
 
 #rent assumptions
-rental_yield = col2.number_input('Rental Yield %',min_value=0.00,max_value=20.00,value=5.00,step=1.0)
-investment_interest_rate = col2.number_input('Return on Investment %',min_value=0.00,max_value=50.00, value=8.00,step=1.0)
-rental_increase = col2.number_input('Rental Increase per Year %',min_value=0.00,max_value=50.00, value=2.00,step=1.0)
-rent_deposit = col2.number_input('Rent deposit (Months)', min_value=0, max_value=12, value=2,step=1)
+with st.expander('Rent Inputs'):
+    rental_yield = st.number_input('Rental Yield %',min_value=0.00,max_value=20.00,value=5.00,step=1.0)
+    investment_interest_rate = st.number_input('Return on Investment %',min_value=0.00,max_value=50.00, value=8.00,step=1.0)
+    rental_increase = st.number_input('Rental Increase per Year %',min_value=0.00,max_value=50.00, value=2.00,step=1.0)
+    rent_deposit = st.number_input('Rent deposit (Months)', min_value=0, max_value=12, value=2,step=1)
 
 #buying calculations
 down_payment = property_value * down_payment_percentage/100
@@ -109,15 +123,17 @@ rent_sums.drop(labels='Deposit', inplace=True)
 
 st.divider()
 
+st.subheader('3. Analysis 📊')
+
 col1,col2 = st.columns(2)
 
 col1.dataframe(buy_sums)
 col2.dataframe(rent_sums)
 
 with st.expander('Cash Flow'):
-    st.title('Buy')
+    st.subheader('Buy')
     st.dataframe(buy_cf,use_container_width=True)
-    st.title('Rent')
+    st.subheader('Rent')
     st.dataframe(rent_cf,use_container_width=True)
 
 st.write(f"""
@@ -129,7 +145,7 @@ Compared to the total rent value of {int(rent_cf['Total'].sum()):,}.
 
 st.divider()
 
-st.header("Feedback")
+st.subheader("Feedback 📨")
 
 mail = st.secrets['MAIL']
 mail_pass = st.secrets['MAIL_PASS']
@@ -155,3 +171,5 @@ with st.form("feedback_form"):
             smtp.send_message(msg)
             
         st.success("Feedback submitted!")
+
+st.write('Disclaimer: this is not a financial advice!')
