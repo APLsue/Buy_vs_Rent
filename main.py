@@ -187,7 +187,7 @@ with st.form("feedback_form"):
         # Construct an email message
         msg = EmailMessage()
         msg['Subject'] = "Streamlit App Feedback" 
-        msg['From'] = mail
+        msg['From'] = 'thisisfrom@mail.com'
         msg['To'] = mail
         
         # Add feedback as message body
@@ -205,7 +205,7 @@ with st.form("feedback_form"):
 st.write('Disclaimer: this is not a financial advice!')
 
 st.write("""
-It uses the following assumptions:
+This analysis uses the following assumptions:
 1. You have the option of either buy or rent the same or similar property
 2. Have enough money to pay the outflows
 3. Can access a mortgage
