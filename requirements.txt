@@ -1,5 +1,4 @@
-pandas
-matplotlib
-streamlit
-smtplib
-numpy
+matplotlib==3.5.2
+numpy==1.21.5
+pandas==1.4.3
+streamlit==1.25.0
