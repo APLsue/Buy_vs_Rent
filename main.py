@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd 
 import numpy as np
-import streamlit as st
 import smtplib
 import matplotlib.pyplot as plt
 from email.message import EmailMessage
@@ -140,7 +139,7 @@ def calculations(mortgage_rate=mortgage_rate):
 
 calculations()
 
-buy_sums = buy_cf.iloc[:,2:].sum(axis=0)
+buy_sums = buy_cf.iloc[:,2:].sum()
 rent_sums = rent_cf.iloc[:,2:].sum()
 
 buy_sums.name = 'Buy'
@@ -156,6 +155,10 @@ col1,col2 = st.columns(2)
 
 col1.dataframe(buy_sums)
 col2.dataframe(rent_sums)
+
+diff_ = f"{int(buy_sums.loc['Total']-rent_sums.loc['Total']):,}"
+
+st.metric(label='Difference', value=diff_)
 
 with st.expander('Cash Flow'):
     st.subheader('Buy')
@@ -184,6 +187,9 @@ def plot_linechart(metric, results, x_label):
 
     buy_dfs = [data["buy"] for data in results.values()]
     rent_dfs = [data["rent"] for data in results.values()]
+
+    #buy_sums = buy_cf.iloc[:,2:].sum()
+    #rent_sums = rent_cf.iloc[:,2:].sum()
 
     buy_df = pd.concat(buy_dfs, axis=1)
     rent_df = pd.concat(rent_dfs, axis=1)
@@ -251,4 +257,5 @@ This analysis uses the following assumptions:
 # - all investments are made at the end of the period (?)
 # - add mortgage tables
 # - change analysis section to show metrics instead 
+# - remove all interpreters and venv and conda
 
