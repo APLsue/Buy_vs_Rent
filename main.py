@@ -53,8 +53,10 @@ def variables():
 inputs = variables()
 #mutual assumptions
 with st.expander('Main Inputs'):
-    property_value = st.number_input('Property Value', min_value=25000, max_value=1000000, value=250000,step=1000)
-    stay_years = st.number_input('Staying Years', min_value=inputs['stay_years']['min_value'], max_value=inputs['stay_years']['max_value'], value=10,step=inputs['stay_years']['step'])
+    with st.form(key='Main'):
+        property_value = st.number_input('Property Value', min_value=25000, max_value=1000000, value=250000,step=1000)
+        stay_years = st.number_input('Staying Years', min_value=inputs['stay_years']['min_value'], max_value=inputs['stay_years']['max_value'], value=10,step=inputs['stay_years']['step'])
+        submit_button_main = st.form_submit_button(label='Update')
 
 st.subheader('2. Specific Inputs 💰')
 
@@ -62,8 +64,8 @@ st.subheader('2. Specific Inputs 💰')
 with st.expander('Buy Inputs'):
     with st.form(key='Buy'):
         down_payment_percentage = st.number_input('Down Payment %', min_value=0.00, max_value=100.00, value=10.00,step=1.0)
-        mortgage_rate = st.number_input('Mortgage Rate %', min_value=-1.00, max_value=20.00, value=6.00,step=1.0)
-        mortgage_years = st.number_input('Mortgage Years', min_value=5, max_value=30, value=20,step=1)
+        mortgage_rate = st.number_input('Mortgage Rate %', min_value=inputs['mortgage_rate']['min_value'], max_value=inputs['mortgage_rate']['max_value'], value=6.0,step=inputs['mortgage_rate']['step'])
+        mortgage_years = st.number_input('Mortgage Years', min_value=inputs['mortgage_years']['min_value'], max_value=inputs['mortgage_years']['max_value'], value=20,step=inputs['mortgage_years']['step'])
         property_value_increase = st.number_input('Porperty Price Increase per year %', min_value=0.00, max_value=50.00, value=2.00,step=1.0)
         legal_fees = st.number_input('Legal Fees %', min_value=0.00, max_value=10.00,value=1.00,step=0.5)
         maintenance_rate = st.number_input('Maintenance Annual Rate %',min_value=0.00,max_value=20.00,value=0.50,step=0.50)
@@ -72,7 +74,7 @@ with st.expander('Buy Inputs'):
 #rent assumptions
 with st.expander('Rent Inputs'):
     with st.form(key='Rent'):
-        rental_yield = st.number_input('Rental Yield % (yearly rental based on percentage of property value)',min_value=0.00,max_value=20.00,value=5.00,step=0.5)
+        rental_yield = st.number_input('Rental Yield % (yearly rental based on percentage of property value)',min_value=inputs['rental_yield']['min_value'], max_value=inputs['rental_yield']['max_value'], value=5.0,step=inputs['rental_yield']['step'])
         investment_interest_rate = st.number_input('Return on Investment %',min_value=0.00,max_value=50.00, value=8.00,step=1.0)
         rental_increase = st.number_input('Rental Increase per Year %',min_value=0.00,max_value=50.00, value=2.00,step=1.0)
         rent_deposit_input = st.number_input('Rent deposit (Months)', min_value=0, max_value=12, value=2,step=1)
@@ -173,9 +175,9 @@ def calculations(stay_years=stay_years,mortgage_rate=mortgage_rate,mortgage_year
     buy_cf['Investment'] = round(inv_df['Buy_Investment'],0)
     buy_cf['Total'] = round(buy_cf.iloc[:,2:].sum(axis=1),0)
 
-    return buy_cf, rent_cf
+    return buy_cf, rent_cf, inv_df
 
-buy_cf, rent_cf = calculations()
+buy_cf, rent_cf, inv_df = calculations()
 
 #analysis
 buy_sums = buy_cf.iloc[:,2:].sum()
@@ -216,7 +218,7 @@ def results(key):
     params = {}
     for rate in rates:
         params[key] = rate
-        buy_cf_, rent_cf_ = calculations(**params)
+        buy_cf_, rent_cf_, x_ = calculations(**params)
         results[rate] = {
             "buy": buy_cf_, 
             "rent": rent_cf_
@@ -247,13 +249,9 @@ def plot_linechart(results):
     fig.update_traces(textposition='bottom center',showlegend=False)
     st.plotly_chart(fig,use_container_width=True)
 
-    #st.line_chart(diff_)
-
-#with st.form('Sensitivity'):
 option = st.selectbox('Salect a variable',
                 inputs.keys())
 slider_value = st.slider('Select Value',min_value=inputs[option]['min_value'],max_value=inputs[option]['max_value'],value=inputs[option]['slider'],step=inputs[option]['step'])
-#st.form_submit_button('Submit')
 
 plot_results = results(option)
 plot_linechart(plot_results)
@@ -267,9 +265,14 @@ with st.expander('Cash Flow'):
     st.subheader('Rent')
     st.dataframe(rent_cf,use_container_width=True)
 
-with st.expander('Other tables'):
-    st.subheader('Investments')
-    st.subheader('Mortgage')
+buy_inv = inv_df[['Month','Year','Buy_Investment','Buy_Interest','Buy_Capital']]
+rent_inv = inv_df[['Month','Year','Rent_Investment','Rent_Interest','Rent_Capital']]
+
+with st.expander('Investments'):
+    st.subheader('Buy')
+    st.dataframe(buy_inv,use_container_width=True)
+    st.subheader('Rent')
+    st.dataframe(rent_inv,use_container_width=True)
 
 st.divider()
 st.subheader("Feedback 📨")
@@ -310,12 +313,3 @@ with st.expander('Disclaimers'):
     5. Cash outflows for both options are the same 
     6. All investment returns are reinvested for the period of the stay
     7. At some point in the future, the property is sold and the investments are withdrawn""")
-
-# - all investments are made at the end of the period (?)
-# - add mortgage tables
-# - change analysis section to show metrics instead
-# Pending points to make sensitivity analysis:
-# 1. Make list of possible variables
-# 2. Make the "Calculations" func accepts all those options
-# 3. Make the slider form available to pick all different variables
-# 4. Make max an min values part of the list of variable (?) 
